@@ -15,8 +15,6 @@ public class ViewObserver implements Observer {
 	
 	@Override
 	public void update() {
-		controller.getModel().setNumber1(view.getNumber1());
-		controller.getModel().setNumber2(view.getNumber2());
-		controller.getModel().calculate();
+		controller.getModel().calculate(view.getNumber1(), view.getNumber2(), view.getMethod());
 	}
 }

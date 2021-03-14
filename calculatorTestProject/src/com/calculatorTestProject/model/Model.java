@@ -7,8 +7,6 @@ import com.calculatorTestProject.observers.Observer;
 
 public class Model implements Observable {
 	
-	private int number1;
-	private int number2;
 	private int result;
 	private ArrayList<Observer> calculateObservers;
 		
@@ -17,24 +15,35 @@ public class Model implements Observable {
 		this.calculateObservers = new ArrayList<Observer>();
 	}
 	
-	public void setNumber1(int number) {
-		this.number1 = number;
-	}
-	public void setNumber2(int number) {
-		this.number2 = number;
+	public int getResult() {
+		return result;
 	}
 	
-	public String getResultString() {
-		return Integer.toString(result);
-	}
-	
-	public void calculate() {
-		this.result = this.number1 * this.number2;
+	public void calculate(int number1, int number2, char method) {
+		switch(method) {
+		case '+':
+			add(number1, number2);
+			break;
+		case '-':
+			subtract(number1, number2);
+			break;
+		case '*':
+			multiply(number1, number2);
+			break;
+		}
 		notifyObservers();
 	}
 	
-	public void multiply() {
-		this.result = this.number1 * this.number2;
+	public void multiply(int number1, int number2) {
+		this.result = number1 * number2;
+	}
+	
+	public void add(int number1, int number2) {
+		this.result = number1 + number2;
+	}
+	
+	public void subtract(int number1, int number2) {
+		this.result = number1 - number2;
 	}
 
 	@Override
