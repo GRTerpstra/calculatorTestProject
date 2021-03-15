@@ -12,7 +12,6 @@ public class Controller {
 	private View view1;
 	private Observer viewObserver;
 	private Observer modelObserver;
-	
 
 	public Controller(Model model, View view) {
 		this.model1 = model;
@@ -21,12 +20,12 @@ public class Controller {
 		modelObserver = new ModelObserver(this, this.model1);
 		view1.registerObserver(viewObserver);
 		model1.registerObserver(modelObserver);
-	}	
-	
+	}
+
 	public Model getModel() {
 		return this.model1;
 	}
-	
+
 	public View getView() {
 		return this.view1;
 	}

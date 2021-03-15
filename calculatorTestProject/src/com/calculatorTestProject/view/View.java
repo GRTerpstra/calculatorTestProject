@@ -13,8 +13,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 
@@ -55,9 +53,10 @@ public class View implements Observable {
 		resultText.setTranslateX(60);
 		resultText.setTranslateY(-120);
 		outputText = new Text();
-		outputText.setTranslateX(45);
+		outputText.setTranslateX(-30);
 		outputText.setTranslateY(-130);
 		outputText.setFont(Font.font(15));
+		outputText.setWrappingWidth(250);
 		outputText.setTextAlignment(TextAlignment.RIGHT);
 
 		buttons = new ArrayList<Button>();
@@ -87,11 +86,11 @@ public class View implements Observable {
 		button12.setTranslateY(-75);
 		button12.addEventHandler(MouseEvent.MOUSE_CLICKED, new MultiplyHandler());
 		button14 = buttons.get(14);
-		button14.setText(",");
+		button14.setText(".");
 		button14.setMinSize(50, 50);
 		button14.setTranslateX(0);
 		button14.setTranslateY(90);
-		// button14.addEventHandler(MouseEvent.MOUSE_CLICKED, new CalculateHandler());
+// 		button14.addEventHandler(MouseEvent.MOUSE_CLICKED, new CalculateHandler());
 		button15 = buttons.get(15);
 		button15.setText("/");
 		button15.setMinSize(50, 50);
@@ -118,21 +117,9 @@ public class View implements Observable {
 		screen1.setStroke(Color.DARKGRAY);
 
 		stackPane1 = new StackPane();
-		stackPane1.getChildren().add(calculateButton);
-		stackPane1.getChildren().add(button10);
-		stackPane1.getChildren().add(button11);
-		stackPane1.getChildren().add(button12);
-		stackPane1.getChildren().add(button14);
-		stackPane1.getChildren().add(button15);
-		stackPane1.getChildren().add(button16);
-		stackPane1.getChildren().add(button17);
 		addNumberButtons();
-		stackPane1.getChildren().add(screen1);
-//		stackPane1.getChildren().add(number1Text);
-//		stackPane1.getChildren().add(number2Text);
-//		stackPane1.getChildren().add(resultText);
-		stackPane1.getChildren().add(outputText);
-
+		stackPane1.getChildren().addAll(calculateButton, button10, button11, button12, button14, button15, button16,
+				button17, screen1, outputText);
 		scene1 = new Scene(stackPane1, 350, 400);
 	}
 
@@ -184,13 +171,36 @@ public class View implements Observable {
 
 	public void addNumber(int number) {
 		if (method == '\u0000') {
-			//resetText();
-			number1 *= 10;
-			number1 += number;
-			updateText(false);
+			if (number1 != -1) {
+				number1 *= 10;
+			} else if (number == -1) {
+				number1 = -1;
+				updateText(true);
+				return;
+			}
+			if (number1 >= 0) {
+				number1 += number;
+			} else if (number1 == -1) {
+				number1 = number * number1;
+			} else if (number1 < 0) {
+				number1 -= number;
+			}
+			updateText(true);
 		} else {
-			number2 *= 10;
-			number2 += number;
+			if (number2 != -1) {
+				number2 *= 10;
+			} else if (number == -1) {
+				number2 = -1;
+				updateText(true);
+				return;
+			}
+			if (number2 >= 0) {
+				number2 += number;
+			} else if (number2 == -1) {
+				number2 = number * number2;
+			} else if (number2 < 0) {
+				number2 -= number;
+			}
 			updateText(false);
 		}
 	}
@@ -212,10 +222,9 @@ public class View implements Observable {
 	}
 
 	public void updateResultText() {
-		if(number1 != 0 && number2 != 0) {
-		resultText.setText(" = " + Integer.toString(result));
-		}
-		else { 
+		if (number1 != 0 && number2 != 0) {
+			resultText.setText(" = " + Integer.toString(result));
+		} else {
 			resultText.setText("");
 		}
 	}
@@ -251,29 +260,34 @@ public class View implements Observable {
 			observer.update();
 		}
 	}
-	
+
 	public void updateText(boolean updateResultFlag) {
-		if(number1 != 0 && method == '\u0000') {
-		number1Text.setText(Integer.toString(number1));
+		if (number1 != 0 && method == '\u0000') {
+			number1Text.setText(Integer.toString(number1));
 		}
-		if(number1 != 0 && method != '\u0000') {
-			if(method != '*') {
+		if (number1 != 0 && method != '\u0000') {
+			if (method != '*') {
 				number1Text.setText(Integer.toString(number1) + " " + method);
-				}
-			else {
+			} else {
 				number1Text.setText(Integer.toString(number1) + " x ");
 			}
 		}
-		if(number2 != 0) {
-		number2Text.setText(Integer.toString(number2));
+		if (number2 != 0) {
+			number2Text.setText(Integer.toString(number2));
 		}
-		if(number1 == 0) {
+		if (number1 == 0) {
 			number1Text.setText("");
 		}
-		if(number2 == 0) {
+		if (number1 == -1) {
+			number1Text.setText("-");
+		}
+		if (number2 == 0) {
 			number2Text.setText("");
 		}
-		if(updateResultFlag == true) {
+		if (number2 == -1) {
+			number2Text.setText("-");
+		}
+		if (updateResultFlag == true) {
 			updateResultText();
 		}
 		outputText.setText(number1Text.getText() + " " + number2Text.getText() + resultText.getText());
@@ -282,7 +296,7 @@ public class View implements Observable {
 	public void setResult(int result) {
 		this.result = result;
 	}
-	
+
 	public int getResult() {
 		return this.result;
 	}
@@ -290,23 +304,22 @@ public class View implements Observable {
 	class CalculateHandler implements EventHandler<MouseEvent> {
 		@Override
 		public void handle(MouseEvent arg0) {
-			if(getNumber1() == 0 & getNumber2() == 0) {
-				setNumber1(getResult());
+			if (getNumber1() != 0 & getNumber2() != 0) {
+				notifyObservers();
+				updateText(true);
+				setMethod('\u0000');
+				setNumber1(0);
+				setNumber2(0);
 			}
-			notifyObservers();
-			updateText(true);
-			setMethod('\u0000');
-			setNumber1(0);
-			setNumber2(0);
 		}
 	}
 
 	class AddHandler implements EventHandler<MouseEvent> {
 		@Override
 		public void handle(MouseEvent arg0) {
-			if(getMethod() == '\u0000') {
+			if (getMethod() == '\u0000') {
 				setMethod('+');
-				if(getNumber1() == 0 & getNumber2() == 0) {
+				if (getNumber1() == 0 & getNumber2() == 0) {
 					setNumber1(getResult());
 					result = 0;
 				}
@@ -319,76 +332,81 @@ public class View implements Observable {
 	class SubtractHandler implements EventHandler<MouseEvent> {
 		@Override
 		public void handle(MouseEvent arg0) {
-			if(getMethod() == '\u0000') {
+			if (number1 == 0 && result == 0) {
+				addNumber(-1);
+			} else if (getMethod() != '\u0000' && result == 0) {
+				addNumber(-1);
+			} else if (getMethod() == '\u0000') {
 				setMethod('-');
-				if(getNumber1() == 0 & getNumber2() == 0) {
+				if (getNumber1() == 0 & getNumber2() == 0) {
 					setNumber1(getResult());
-					result = 0;
+					setResult(0);
+					updateText(true);
+					return;
 				}
-				number1Text.setText(Integer.toString(number1) + " " + method);
-				updateText(true);
+
 			}
+			// number1Text.setText(Integer.toString(number1) + " " + method);
+			updateText(false);
 		}
 	}
 
 	class MultiplyHandler implements EventHandler<MouseEvent> {
 		@Override
 		public void handle(MouseEvent arg0) {
-			if(getMethod() == '\u0000') {
+			if (getMethod() == '\u0000') {
 				setMethod('*');
-				if(getNumber1() == 0 & getNumber2() == 0) {
+				if (getNumber1() == 0 & getNumber2() == 0) {
 					setNumber1(getResult());
 					result = 0;
 				}
 				number1Text.setText(Integer.toString(number1) + " x");
 				updateText(true);
-			}			
+			}
 		}
 	}
 
 	class DivideHandler implements EventHandler<MouseEvent> {
 		@Override
 		public void handle(MouseEvent arg0) {
-			if(getMethod() == '\u0000') {
+			if (getMethod() == '\u0000') {
 				System.out.println(method);
 				setMethod('/');
-				if(getNumber1() == 0 & getNumber2() == 0) {
+				if (getNumber1() == 0 & getNumber2() == 0) {
 					setNumber1(getResult());
 					result = 0;
 				}
 				number1Text.setText(Integer.toString(number1) + " /");
 				updateText(true);
-			}			
+			}
 		}
 	}
-	
+
 	class BackspaceHandler implements EventHandler<MouseEvent> {
 		@Override
 		public void handle(MouseEvent arg0) {
 			String numberString;
-			if(getNumber2() == 0 & getMethod() != '\u0000') {
+			if (getNumber2() == 0 & getMethod() != '\u0000') {
 				setMethod('\u0000');
-			}
-			else if(getNumber2() == 0 & getNumber1() != 0) {
+			} else if (getNumber2() == 0 & getNumber1() != 0) {
 				numberString = String.valueOf(number1);
 				numberString = numberString.substring(0, numberString.length() - 1);
-				if(numberString.contentEquals("")) {
+				if (numberString.contentEquals("") || numberString.contentEquals("-")) {
 					numberString = "0";
 				}
 				setNumber1(Integer.parseInt(numberString));
-			}
-			else if(getNumber2() != 0) {
+			} else if (getNumber2() != 0) {
 				numberString = String.valueOf(number2);
 				numberString = numberString.substring(0, numberString.length() - 1);
-				if(numberString.contentEquals("")) {
+				if (numberString.contentEquals("") || numberString.contentEquals("-")) {
 					numberString = "0";
 				}
 				setNumber2(Integer.parseInt(numberString));
-			}
-			else {
+			} else {
+
 				updateText(true);
 			}
-			updateText(false);			
+			updateText(false);
 		}
 	}
 
@@ -397,13 +415,17 @@ public class View implements Observable {
 		public void handle(MouseEvent arg0) {
 			char previousMethod = getMethod();
 			setMethod('^');
-			if(getNumber1() == 0 & getNumber2() == 0) {
+			if (getNumber1() == 0 & getNumber2() == 0) {
 				setNumber1(getResult());
 				result = 0;
-				updateText(true);
 			}
 			notifyObservers();
 			setMethod(previousMethod);
+			if (previousMethod == '\u0000') {
+				updateText(true);
+			} else {
+				updateText(false);
+			}
 		}
 	}
 
