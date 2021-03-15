@@ -15,7 +15,12 @@ public class ModelObserver implements Observer {
 	
 	@Override
 	public void update() {	
-		this.controller.getView().setResult(model.getResult());
-		this.controller.getView().updateResultText();
+		if(this.controller.getView().getMethod() != '^') {
+			this.controller.getView().setResult(model.getResult());
+			this.controller.getView().updateResultText();
+		}
+		else {
+			this.controller.getView().setNumberResult(model.getResult());
+		}
 	}
 }

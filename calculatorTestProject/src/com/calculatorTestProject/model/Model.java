@@ -30,6 +30,12 @@ public class Model implements Observable {
 		case '*':
 			multiply(number1, number2);
 			break;
+		case '/':
+			divide(number1, number2);
+			break;
+		case '^':
+			exponent(number1, number2);
+			break;
 		}
 		notifyObservers();
 	}
@@ -44,6 +50,19 @@ public class Model implements Observable {
 	
 	public void subtract(int number1, int number2) {
 		this.result = number1 - number2;
+	}
+	
+	public void divide (int number1, int number2) {
+		this.result = number1 / number2;
+	}
+	
+	public void exponent(int number1, int number2) {
+		if(number2 == 0) {
+			this.result = (int) Math.pow(number1, 2);
+		}
+		else {
+			this.result = (int) Math.pow(number2, 2);
+		}
 	}
 
 	@Override
