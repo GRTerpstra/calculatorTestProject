@@ -173,7 +173,8 @@ public class View implements Observable {
 		if (method == '\u0000') {
 			if (number1 != -1) {
 				number1 *= 10;
-			} else if (number == -1) {
+			}
+			if (number == -1) {
 				number1 = -1;
 				updateText(true);
 				return;
@@ -187,11 +188,12 @@ public class View implements Observable {
 			}
 			updateText(true);
 		} else {
-			if (number2 != -1) {
+			if (number2 != -1 && number != -1) {
 				number2 *= 10;
-			} else if (number == -1) {
+			}
+			if (number == -1) {
 				number2 = -1;
-				updateText(true);
+				updateText(false);
 				return;
 			}
 			if (number2 >= 0) {
@@ -323,9 +325,17 @@ public class View implements Observable {
 					setNumber1(getResult());
 					result = 0;
 				}
-				number1Text.setText(Integer.toString(number1) + " " + method);
-				updateText(true);
 			}
+			else if(getMethod() != '\u0000' && result == 0 && getNumber2() != 0) {
+				if (getNumber2() != 0) {
+					notifyObservers();
+					setMethod('+');
+					setNumber1(getResult());
+					setNumber2(0);
+					result = 0;					
+				}		
+			}
+			updateText(true);
 		}
 	}
 
@@ -334,9 +344,13 @@ public class View implements Observable {
 		public void handle(MouseEvent arg0) {
 			if (number1 == 0 && result == 0) {
 				addNumber(-1);
-			} else if (getMethod() != '\u0000' && result == 0) {
+			}
+			else if (number1 != 0 && number2 == 0 && getMethod() != '\u0000' && result == 0) {
 				addNumber(-1);
-			} else if (getMethod() == '\u0000') {
+				updateText(false);
+				return;
+			} 
+			else if (getMethod() == '\u0000') {
 				setMethod('-');
 				if (getNumber1() == 0 & getNumber2() == 0) {
 					setNumber1(getResult());
@@ -344,10 +358,16 @@ public class View implements Observable {
 					updateText(true);
 					return;
 				}
-
+			} else if(getMethod() != '\u0000' && result == 0 && getNumber2() != 0) {
+				if(getNumber2() != 0) {
+					notifyObservers();
+					setMethod('-');
+					setNumber1(getResult());
+					setNumber2(0);
+					result = 0;	
+				}
 			}
-			// number1Text.setText(Integer.toString(number1) + " " + method);
-			updateText(false);
+			updateText(true);
 		}
 	}
 
@@ -360,9 +380,16 @@ public class View implements Observable {
 					setNumber1(getResult());
 					result = 0;
 				}
-				number1Text.setText(Integer.toString(number1) + " x");
-				updateText(true);
+			} else if(getMethod() != '\u0000' && result == 0 && getNumber2() != 0) {
+				if(getNumber2() != 0) {
+					notifyObservers();
+					setMethod('*');
+					setNumber1(getResult());
+					setNumber2(0);
+					result = 0;	
+				}
 			}
+		updateText(true);
 		}
 	}
 
@@ -370,15 +397,21 @@ public class View implements Observable {
 		@Override
 		public void handle(MouseEvent arg0) {
 			if (getMethod() == '\u0000') {
-				System.out.println(method);
 				setMethod('/');
 				if (getNumber1() == 0 & getNumber2() == 0) {
 					setNumber1(getResult());
 					result = 0;
 				}
-				number1Text.setText(Integer.toString(number1) + " /");
-				updateText(true);
-			}
+			} else if(getMethod() != '\u0000' && result == 0 && getNumber2() != 0) {
+				if(getNumber2() != 0) {
+					notifyObservers();
+					setMethod('/');
+					setNumber1(getResult());
+					setNumber2(0);
+					result = 0;	
+				}
+			}			
+			updateText(true);
 		}
 	}
 
@@ -403,7 +436,7 @@ public class View implements Observable {
 				}
 				setNumber2(Integer.parseInt(numberString));
 			} else {
-
+				setResult(0);
 				updateText(true);
 			}
 			updateText(false);
